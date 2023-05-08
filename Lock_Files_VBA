@@ -1,0 +1,40 @@
+Sub ProtectAll()
+    Dim xWorkBooks As Workbook
+    Dim xExitFile As String
+    Dim xPassWord As Variant
+    Dim xStrPath As String
+    Dim xFileDialog As FileDialog
+    Dim xFile As String
+    On Error Resume Next
+    Set xFileDialog = Application.FileDialog(msoFileDialogFolderPicker)
+    xFileDialog.AllowMultiSelect = False
+    xFileDialog.Title = "Select a folder [Kutools for Excel]"
+    If xFileDialog.Show = -1 Then
+        xStrPath = xFileDialog.SelectedItems(1)
+    End If
+    If xStrPath = "" Then
+        Exit Sub
+    Else
+        xStrPath = xStrPath + "\"
+    End If
+    xPassWord = Application.InputBox("Enter password", "Kutools for Excel", , , , , , 2)
+    If (xPassWord = False) Or (xPassWord = "") Then
+        MsgBox "Password cannot be blank!", vbInformation, "Kutools for Excel"
+        Exit Sub
+    End If
+    xFile = "*.xls"
+    xExitFile = Dir(xStrPath & xFile)
+    On Error Resume Next
+    Application.ScreenUpdating = False
+    Do While xExitFile <> ""
+        Set xWorkBooks = Workbooks.Open(xStrPath & xExitFile)
+        Application.DisplayAlerts = False
+        xWorkBooks.SaveAs Filename:=xWorkBooks.FullName, Password:=xPassWord
+        Application.DisplayAlerts = True
+        Workbooks(xExitFile).Close False
+        Set xWorkBooks = Nothing
+        xExitFile = Dir
+    Loop
+    Application.ScreenUpdating = True
+    MsgBox "Successfully protect!", vbInformation, "Kutools for Excel"
+End Sub
